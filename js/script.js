@@ -17,9 +17,9 @@ const playAgainButton = document.querySelector(".play-again");
 // Starting word to test out the game
 let word = "magnolia";
 // Placeholder for guessed letters
-const guessedLetters = [];
+let guessedLetters = [];
 
-// Grab random words from text file and update placeholder and word 
+// Grab random words from text file and update placeholder and word
 const getWord = async function () {
   const requestData = await fetch("https://gist.githubusercontent.com/skillcrush-curriculum/7061f1d4d3d5bfe47efbfbcfe42bf57e/raw/5ffc447694486e7dea686f34a6c085ae371b43fe/words.txt");
   const data = await requestData.text();
@@ -131,12 +131,14 @@ const countGuesses = function (guess) {
   if (wordUpper.includes(guess)) {
     message.innerText = `Good guess! The word has the letter ${guess}`;
   } else {
-    message.innerText = `The word doesn't include ${guess}`;
+    message.innerText = `The word doesn't include "${guess}"`;
     remainingGuesses -= 1;
   }
 
   if (remainingGuesses === 0) {
-    remainingGuessesElement.innerHTML = `<p>Sorry, the game is over. The word was "${word}"</p>`;
+    //remainingGuessesElement.innerHTML = `<p>Sorry, the game is over. The word was "${word}"</p>`;
+    message.innerHTML = `<p class="highlight">Sorry, the game is over. The word was "${word}"</p>`;
+    startOver();
   } else if (remainingGuesses === 1) {
     remainingGuessesSpan.innerText = "1 guess";
   } else {
@@ -149,5 +151,33 @@ const ifWin = function () {
   if (wordInProgress.innerText === word.toUpperCase()) {
     message.classList.add("win");
     message.innerHTML = `<p class="highlight">You guessed the correct word! Congrats!</p>`;
+    startOver();
   }
 };
+
+// Start the game again after finished
+const startOver = function () {
+  guessButton.classList.add("hide");
+  remainingGuessesElement.classList.add("hide");
+  guessedLettersElement.classList.add("hide");
+  playAgainButton.classList.remove("hide");
+};
+
+// Reactivate game when play again button is clicked 
+playAgainButton.addEventListener("click", function () {
+  message.classList.remove("win");
+  message.innerText = "";
+
+  guessedLettersElement.innerHTML = "";
+  guessedLetters = [];
+
+  remainingGuesses = 8;
+
+  guessButton.classList.remove("hide");
+  playAgainButton.classList.add("hide");
+
+  remainingGuessesElement.classList.remove("hide");
+  guessedLettersElement.classList.remove("hide");
+  // Pull a new random word to play with
+  getWord();
+});
